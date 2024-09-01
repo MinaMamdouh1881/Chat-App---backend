@@ -6,14 +6,16 @@ import connectToMongoDB from './DB/connectToMongodb.js';
 import authRoute from './routes/auth.route.js';
 import messageRoute from './routes/message.route.js';
 import usersRoute from './routes/users.route.js';
+import { app,server,io } from './socket/socket.js';
 
 dotenv.config();
 
-const app = express();
+// const app = express();
 const PORT = process.env.PORT || 3000;
 const corsOptions = {
   origin: 'http://localhost:5173', // Frontend origin
   credentials: true, // Allow credentials (cookies)
+  methods:["GET","POST"]
 };
 
 app.use(cors(corsOptions));
@@ -25,7 +27,7 @@ app.use('/api/auth', authRoute);
 app.use('/api/message', messageRoute);
 app.use('/api/users', usersRoute);
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   connectToMongoDB();
   console.log(`Listening On Port ${PORT}`);
 });
