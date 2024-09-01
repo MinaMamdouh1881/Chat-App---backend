@@ -1,17 +1,33 @@
 import User from '../models/users.model.js';
+import Conversation from '../models/conversation.model.js';
 
-export const getUsersForSidebar = async (req, res) => {
+export const getConversationUsers = async (req, res) => {
   try {
     const id = req.user._id;
 
-    let users = await User.find({ _id: { $ne: id } }).select([
-      '-password',
-      '-gender',
-    ]);
+    const users = await Conversation.find({ participants: id })
+      .select(['-_id', '-messages', '-password', '-gender'])
+      .populate('participants', ['fullName', 'userName', 'profilePic']);
 
-    res.status(200).json(users);
+    const filteredConversations = users.map((el) => {
+      const filteredParticipants = el.participants.filter(
+        (prant) => prant._id.toString() !== id.toString()
+      );
+
+      return {
+        _id: filteredParticipants[0]._id,
+        fullName: filteredParticipants[0].fullName,
+        userName: filteredParticipants[0].userName,
+        profilePic: filteredParticipants[0].profilePic,
+        createdAt: el.createdAt,
+        updatedAt: el.updatedAt,
+        __v: el.__v,
+      };
+    });
+
+    res.json({ data: filteredConversations });
   } catch (error) {
-    console.log('Error getUsersForSidebar', error.message);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
