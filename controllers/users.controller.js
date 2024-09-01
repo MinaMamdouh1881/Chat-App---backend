@@ -7,7 +7,8 @@ export const getConversationUsers = async (req, res) => {
 
     const users = await Conversation.find({ participants: id })
       .select(['-_id', '-messages', '-password', '-gender'])
-      .populate('participants', ['fullName', 'userName', 'profilePic']);
+      .populate('participants', ['fullName', 'userName', 'profilePic'])
+      .sort({ updatedAt: 'desc' });
 
     const filteredConversations = users.map((el) => {
       const filteredParticipants = el.participants.filter(
@@ -35,6 +36,8 @@ export const getConversationUsers = async (req, res) => {
 export const searchForUsers = async (req, res) => {
   try {
     const { query } = req.body;
+    const id = req.user._id
+    
 
     if (!query)
       return res.status(400).json({ error: 'Please Provide Information' });
@@ -44,7 +47,9 @@ export const searchForUsers = async (req, res) => {
       '-gender',
     ]);
 
-    res.status(200).json(users);
+    const filteredUsers = users.filter((user) => user._id.toString() !== id.toString());
+
+    res.status(200).json(filteredUsers);
   } catch (error) {
     console.log('Error Search For Users', error.message);
     res.status(500).json({ error: 'Internal Server Error' });
