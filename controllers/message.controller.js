@@ -1,5 +1,6 @@
 import Conversation from '../models/conversation.model.js';
 import Message from '../models/message.model.js';
+import { getReceiverSocketId, io } from '../socket/socket.js';
 
 export const sendMessage = async (req, res) => {
   try {
@@ -24,7 +25,12 @@ export const sendMessage = async (req, res) => {
 
     if (newMessage) {
       conversation.messages.push(newMessage._id);
-      await Promise.all([newMessage.save(), conversation.save()]);
+    }
+    await Promise.all([newMessage.save(), conversation.save()]);
+
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit('newMessage', senderId, newMessage);
     }
     res.status(201).json({ newMessage });
   } catch (error) {
@@ -36,17 +42,15 @@ export const sendMessage = async (req, res) => {
 export const getMessages = async (req, res) => {
   try {
     const { id: userToChat } = req.params;
-    const  userId  = req.user._id;
-    
+    const userId = req.user._id;
 
     let conversation = await Conversation.findOne({
       participants: { $all: [userId, userToChat] },
     }).populate('messages');
 
-    const messages =  conversation?.messages || []
+    const messages = conversation?.messages || [];
 
     res.status(200).json(messages);
-    
   } catch (error) {
     console.log('Error Get Messages', error.message);
     res.status(500).json({ error: 'Internal Server Error' });

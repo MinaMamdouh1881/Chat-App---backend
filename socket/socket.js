@@ -7,6 +7,8 @@ const server = http.createServer(app);
 
 const usersSocketMap = {};
 
+export const getReceiverSocketId = (receiverId) => usersSocketMap[receiverId];
+
 const io = new Server(server, {
   cors: {
     origin: 'http://localhost:5173', // Frontend origin
