@@ -12,7 +12,11 @@ dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 const corsOptions = {
-  origin: 'https://chat-app-frontend-beryl-omega.vercel.app',
+  origin: [
+    'http://localhost:5173',
+    'https://chat-app-frontend-beryl-omega.vercel.app',
+  ],
+  // origin: 'https://chat-app-frontend-beryl-omega.vercel.app',
   credentials: true,
   methods: ['GET', 'POST'],
 };

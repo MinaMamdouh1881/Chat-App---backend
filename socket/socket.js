@@ -11,7 +11,8 @@ export const getReceiverSocketId = (receiverId) => usersSocketMap[receiverId];
 
 const io = new Server(server, {
   cors: {
-    origin: 'https://chat-app-frontend-beryl-omega.vercel.app',
+    origin: ['http://localhost:5173','https://chat-app-frontend-beryl-omega.vercel.app'],
+    // origin: 'https://chat-app-frontend-beryl-omega.vercel.app',
     methods: ['GET', 'POST'],
   },
 });
